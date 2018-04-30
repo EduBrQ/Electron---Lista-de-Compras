@@ -2,7 +2,10 @@ const electron = require('electron');
 const url = require('url');
 const path = require('path');
 
-const {app, BrowserWindow, Menu} = electron;
+const {app, BrowserWindow, Menu, ipcMain} = electron;
+
+// SET ENVIROMENT
+process.env.NODE_ENV = 'production';
 
 let mainWindow;
 let addWindow;
@@ -33,9 +36,9 @@ app.on('ready', function(){
 function createAddWindow(){
     // cria nova janela
     addWindow = new BrowserWindow({
-        width:300,
-        height:200,
-        title:'Add Item a Lista de Compras'
+        width:400,
+        height:300,
+        title:'Adicionar Item'
     });
     // carrega html na janela
     addWindow.loadURL(url.format({
@@ -50,10 +53,17 @@ function createAddWindow(){
 
 }
 
-// menu template
+// pega item.add
+ipcMain.on('item:add', function(e, item){
+    //console.log(item);
+    mainWindow.webContents.send('item:add', item);
+    addWindow.close();
+});
+
+// cria menu template
 const mainMenuTemplate = [
     {
-        label:'File',
+        label:'Arquivo',
         submenu:[
             {
                 label: 'Add Item',
@@ -62,10 +72,13 @@ const mainMenuTemplate = [
                 }
             },
             {
-                label: 'Clear Items'
+                label: 'Limpar Items',
+                click(){
+                    mainWindow.webContents.send('item:clear');
+                }
             },
             {
-                label: 'Quit',
+                label: 'Sair',
                 accelerator: process.platform == 'darwin' ? 'Command+Q' :
                 'Ctrl+Q',
                 click(){

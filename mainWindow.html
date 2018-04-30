@@ -1,9 +1,50 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <title>ShoppingList</title>
+    <title>Lista de Compras</title>
+     <!-- Compiled and minified CSS -->
+     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0-beta/css/materialize.min.css">
 </head>
 <body>
-    <h1>ShoppingList</h1>
+    <nav>
+        <div class="nav-wrapper">
+            <a class="brand-logo center">Lista de Compras</a>
+        </div>
+    </nav>
+    <ul></ul>
+
+    <script>
+        const electron = require('electron');
+        const {ipcRenderer} = electron;
+        const ul = document.querySelector('ul');
+        
+        // pega e add item
+        ipcRenderer.on('item:add', function(e, item){
+            ul.className = 'collection'; // materialize css
+            const li = document.createElement('li');
+            li.className = 'collection-item'; // materialize css
+            const itemText = document.createTextNode(item);
+            li.appendChild(itemText);
+            ul.appendChild(li);
+        });
+
+        // limpa items
+         ipcRenderer.on('item:clear', function(){
+            ul.innerHTML = '';
+            ul.className = '';
+        });
+
+        // Remove Item
+        ul.addEventListener('dblclick', removeItem);
+
+        function removeItem(e){
+            e.target.remove();
+            if(ul.children.length == 0){
+                ul.className = '';
+
+            }
+
+        }
+    </script>
 </body>
 </html>
